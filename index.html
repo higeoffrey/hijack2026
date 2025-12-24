@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WE_ARE_LEGION_JAVA_CYBER</title>
+    <style>
+        :root {
+            --primary: #00ff41; 
+            --danger: #ff003c; 
+            --warning: #ffb800; 
+            --bg: #050505; 
+            --cloud: #00f2ff;
+            --mask: rgba(255, 255, 255, 0.03);
+        }
+
+        body, html {
+            margin: 0; padding: 0; background: var(--bg); color: var(--primary);
+            font-family: 'Courier New', monospace; overflow: hidden; height: 100vh;
+            text-transform: uppercase;
+        }
+
+        .crt::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        .mask-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 30vh; color: var(--mask); z-index: -1; pointer-events: none;
+            text-align: center; line-height: 0.8;
+        }
+
+        .screen { display: none; width: 100vw; height: 100vh; flex-direction: column; justify-content: center; align-items: center; position: absolute; z-index: 5; }
+        .active { display: flex; }
+
+        .grid-master {
+            display: grid; grid-template-columns: 22% 53% 25%; grid-template-rows: 25% 50% 25%;
+            width: 98vw; height: 95vh; gap: 8px; padding: 10px;
+        }
+
+        .panel {
+            border: 1px solid rgba(0, 255, 65, 0.2); background: rgba(0, 5, 0, 0.9);
+            position: relative; overflow: hidden; box-shadow: inset 0 0 15px rgba(0, 255, 65, 0.1);
+        }
+
+        .header { background: rgba(0, 255, 65, 0.2); color: var(--primary); font-size: 11px; font-weight: bold; padding: 4px 10px; border-bottom: 1px solid var(--primary); display: flex; justify-content: space-between; }
+
+        .glitch { animation: glitch 1s linear infinite; }
+        @keyframes glitch {
+            2% { text-shadow: 2px 0 red, -2px 0 blue; }
+            4% { text-shadow: -2px 0 red, 2px 0 blue; }
+            6% { text-shadow: 2px 0 red, -2px 0 blue; }
+        }
+
+        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: 0; opacity: 0.15; }
+
+        .progress-bar { width: 100%; height: 20px; border: 1px solid var(--primary); background: #001100; margin-top: 15px; position: relative; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; box-shadow: 0 0 20px var(--primary); transition: width 0.1s; position: relative; }
+        
+        #log-terminal { font-size: 10px; color: var(--primary); padding: 5px; height: 100%; overflow: hidden; }
+        .log-entry { margin-bottom: 2px; border-left: 2px solid var(--primary); padding-left: 5px; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .terminal-header-text { font-size: 0.6rem; color: var(--warning); text-align: center; white-space: pre; line-height: 1; margin-bottom: 10px; }
+        
+        /* New Disconnect Style */
+        .disconnect-msg { color: #555; font-size: 0.8rem; margin-top: 20px; font-style: italic; }
+    </style>
+</head>
+<body class="crt">
+    <canvas id="matrix-canvas"></canvas>
+    <div class="mask-overlay">🎭</div>
+
+    <div id="stage1" class="screen active">
+        <div class="terminal-header-text">
+   __        _______      ______  ______   _______       __       _______   __    __   ______   ______  
+  |  |      |   ____|    /      ||   _  \ |   ____|     /  \     |       \ |  |  |  | /      \ /      \ 
+  |  |      |  |__      |  ,----'|  |_)  ||  |__       /    \    |  .--.  ||  |__|  ||  ,----'|  ,----'
+  |  |      |   __|     |  |     |      / |   __|     /  /\  \   |  |  |  ||   __   ||  |     |  |     
+  |  `----. |  |____    |  `----.|  |\  \ |  |____   /  ____  \  |  '--'  ||  |  |  ||  `----.|  `----.
+  |_______| |_______|    \______|| _| \__\|_______| /__/    \__\ |_______/ |__|  |__| \______| \______|
+        </div>
+        <h2 class="glitch" style="letter-spacing: 15px;">WE ARE LEGION.</h2>
+        <p id="boot-status" style="color: var(--warning);">SCANNING DEVICE FOR INTERNAL STORAGE...</p>
+    </div>
+
+    <div id="stage2" class="screen">
+        <div class="grid-master">
+            <div class="panel">
+                <div class="header"><span>REMOTE_STORAGE_MAP</span><span>[INTERNAL]</span></div>
+                <div id="sat-map" style="padding:10px; font-size: 11px; color: var(--warning);"></div>
+            </div>
+            
+            <div class="panel" style="grid-row: span 2;">
+                <div class="header"><span>CENTRAL_DATA_EXTRACTION</span><span>TARGET: ANDROID_FS</span></div>
+                <div style="padding: 20px; text-align: center;">
+                    <div id="big-percent" class="glitch" style="font-size: 6rem; font-weight: bold;">0%</div>
+                    <div class="progress-bar"><div id="main-bar" class="progress-fill"></div></div>
+                    <h3 id="action-text" style="color:white; margin-top:20px;">MOUNTING SD_CARD...</h3>
+                </div>
+                <div id="hex-dump" style="font-size: 10px; padding: 10px; height: 150px; opacity: 0.6; border-top: 1px solid #222;"></div>
+            </div>
+
+            <div class="panel" style="grid-row: span 2;">
+                <div class="header"><span>LIVE_FILE_CLONING</span><span>DECRYPTING...</span></div>
+                <div id="exfil-files" style="padding:10px; font-size:10px;"></div>
+            </div>
+
+            <div class="panel">
+                <div class="header"><span>DEVICE_INFO</span><span>ROOT_ACCESS</span></div>
+                <div id="dev-info" style="font-size: 10px; color: white; padding: 10px;"></div>
+            </div>
+
+            <div class="panel">
+                <div class="header"><span>EXTRACTION_LOGS</span></div>
+                <div id="log-terminal"></div>
+            </div>
+            
+            <div class="panel">
+                <div class="header"><span>DECRYPTION_KEYS</span></div>
+                <div style="font-size: 10px; padding: 10px; line-height: 1.5;">
+                    WA_DB: <span style="color:var(--warning)">CRYPT14_OPENED</span><br>
+                    TELEGRAM_CACHE: BYPASSED<br>
+                    DCIM_ENCRYPTION: NONE<br>
+                    VAULT: CRACKING...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="stage-upload" class="screen">
+        <div style="text-align: center; width: 80%;">
+            <h2 class="glitch" style="color: var(--cloud); letter-spacing: 5px;">UPLOADING PRIVATE DATA TO CLOUD</h2>
+            <div style="font-size: 2rem; margin: 20px 0;" id="speed-meter">TRANSFER: 0 MB/s</div>
+            <div id="cloud-stream" style="background: rgba(0,0,0,0.8); border: 1px solid var(--cloud); height: 350px; overflow: hidden; text-align: left; padding: 10px; font-size: 12px; color: var(--cloud);"></div>
+        </div>
+    </div>
+
+    <div id="stage3" class="screen">
+        <div style="border: 2px solid var(--danger); padding: 40px; background: rgba(20,0,0,0.9); text-align: center; box-shadow: 0 0 50px var(--danger);">
+            <h1 class="glitch" style="color: var(--danger); font-size: 5rem; margin: 0;">DONE.</h1>
+            <p style="color: white; font-size: 1.5rem; letter-spacing: 5px;">ALL DATA HARVESTED.</p>
+            <p style="color: var(--primary);">JAVA CYBER TEAM - NO SYSTEM IS SAFE.</p>
+            <div class="disconnect-msg" id="disconnect-status">CLEANING TRACES & DISCONNECTING...</div>
+        </div>
+    </div>
+
+    <div id="stage-exit" class="screen">
+        <h1 style="color: #333; font-family: monospace;">[ CONNECTION TERMINATED ]</h1>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const letters = "0101010101ABCDEF";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0F0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        const show = (id) => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        setTimeout(() => {
+            show('stage2');
+            startAnonymousHack();
+        }, 4000);
+
+        function startAnonymousHack() {
+            const hexDump = document.getElementById('hex-dump');
+            const logs = document.getElementById('log-terminal');
+            const exfil = document.getElementById('exfil-files');
+            const satMap = document.getElementById('sat-map');
+            
+            setInterval(() => {
+                satMap.innerHTML = `
+                    <span style="color:var(--primary)">SCANNING_DIRECTORIES...</span><br><br>
+                    /storage/emulated/0/DCIM<br>
+                    /storage/emulated/0/WhatsApp<br>
+                    /storage/emulated/0/Telegram<br>
+                    /data/system/users/0/<br>
+                    STATUS: ACCESS_GRANTED
+                `;
+            }, 1000);
+
+            setInterval(() => {
+                const line = `0x${Math.floor(Math.random()*0xFFFFFF).toString(16).toUpperCase()} ${Math.random().toString(16).toUpperCase().substring(2,10)}`;
+                const div = document.createElement('div');
+                div.innerText = line;
+                hexDump.prepend(div);
+                if(hexDump.children.length > 15) hexDump.lastChild.remove();
+            }, 60);
+
+            const logMsgs = [
+                "MOUNTING /sdcard/0/...",
+                "OPENING WhatsApp/Databases",
+                "DECRYPTING msgstore.db.crypt14",
+                "READING DCIM/Camera/ thumbnails",
+                "ACCESSING Telegram/Video_Cache",
+                "CLONING WhatsApp/Media/Sent",
+                "BYPASSING Android/data/com.whatsapp",
+                "DUMPING User_Call_Logs.xml",
+                "FETCHING .nomedia files"
+            ];
+
+            setInterval(() => {
+                const l = document.createElement('div');
+                l.className = "log-entry";
+                l.innerText = `> ${logMsgs[Math.floor(Math.random()*logMsgs.length)]}... [OK]`;
+                logs.prepend(l);
+                if(logs.children.length > 12) logs.lastChild.remove();
+            }, 800);
+
+            let p = 0;
+            const bar = document.getElementById('main-bar');
+            const percText = document.getElementById('big-percent');
+            const actionText = document.getElementById('action-text');
+
+            const masterInterval = setInterval(() => {
+                p += 0.4;
+                if(p >= 100) {
+                    p = 100;
+                    clearInterval(masterInterval);
+                    setTimeout(() => startUpload(), 1000);
+                }
+
+                bar.style.width = p + "%";
+                percText.innerText = Math.floor(p) + "%";
+
+                if(p < 25) actionText.innerText = "CLONING WHATSAPP CHAT DATABASES...";
+                else if(p < 50) actionText.innerText = "EXTRACTING DCIM PHOTOS & VIDEOS...";
+                else if(p < 75) actionText.innerText = "HARVESTING TELEGRAM DOCUMENTS...";
+                else actionText.innerText = "FINALIZING COMPRESSION & UPLOAD...";
+
+                if(Math.random() > 0.7) {
+                    const folders = ["DCIM", "WhatsApp", "Telegram", "Documents"];
+                    const f = document.createElement('div');
+                    f.innerHTML = `<span style="color:var(--danger)">[CLONED]</span> ${folders[Math.floor(Math.random()*4)]}_DIR_00${Math.floor(Math.random()*9)}.RAW`;
+                    exfil.prepend(f);
+                }
+            }, 100);
+
+            document.getElementById('dev-info').innerHTML = `DEVICE: SM-ANDROID-GENERIC<br>STORAGE: INTERNAL_SHARED<br>ROOT: TRUE<br>ENCRYPTION: BYPASSED`;
+        }
+
+        function startUpload() {
+            show('stage-upload');
+            const stream = document.getElementById('cloud-stream');
+            let up = 0;
+            
+            const fileSimulation = [
+                "/sdcard/0/WhatsApp/Databases/msgstore.db.crypt14",
+                "/sdcard/0/DCIM/Camera/IMG_20251224_2210.jpg",
+                "/sdcard/0/Telegram/Telegram Video/VID_9921.mp4",
+                "/sdcard/0/WhatsApp/Media/WhatsApp Images/IMG-WA0004.jpg",
+                "/sdcard/0/DCIM/Screenshots/Screenshot_1.png",
+                "/sdcard/0/Telegram/Telegram Documents/Secret.pdf",
+                "/sdcard/0/WhatsApp/Media/WhatsApp Voice Notes/AUD_01.opus",
+                "/sdcard/0/WhatsApp/Media/WhatsApp Documents/Pass.pdf",
+                "/sdcard/0/DCIM/Camera/VID_20251201_001.mp4",
+                "/sdcard/0/Telegram/Telegram Audio/Music_Cache.mp3"
+            ];
+
+            const upInterval = setInterval(() => {
+                up++;
+                const randomFile = fileSimulation[Math.floor(Math.random() * fileSimulation.length)];
+                const size = (Math.random() * 15).toFixed(2);
+                
+                const line = `[UPLOAD] >> ${randomFile} (${size} MB) >> [SUCCESS]`;
+                const d = document.createElement('div');
+                d.style.marginBottom = "4px";
+                d.style.borderLeft = "2px solid " + (up % 2 == 0 ? "var(--cloud)" : "var(--primary)");
+                d.style.paddingLeft = "8px";
+                d.innerText = line;
+                
+                stream.prepend(d);
+                document.getElementById('speed-meter').innerText = `TRANSFER: ${(Math.random()*900 + 100).toFixed(2)} MB/s`;
+                
+                if(up > 70) {
+                    clearInterval(upInterval);
+                    setTimeout(() => {
+                        show('stage3');
+                        autoCloseHacking(); // Trigger proses penutupan
+                    }, 1500);
+                }
+            }, 70);
+        }
+
+        // --- FITUR AUTO CLOSE / DISCONNECTED ---
+        function autoCloseHacking() {
+            const status = document.getElementById('disconnect-status');
+            
+            // Tahap 1: Membersihkan log (simulasi)
+            setTimeout(() => {
+                status.innerText = "WIPING LOGS FROM TARGET SYSTEM...";
+                status.style.color = "var(--warning)";
+            }, 2000);
+
+            // Tahap 2: Menutup koneksi
+            setTimeout(() => {
+                status.innerText = "ENCRYPTING EXFILTRATED DATA...";
+            }, 4000);
+
+            // Tahap 3: Disconnect total
+            setTimeout(() => {
+                show('stage-exit'); // Tampilan gelap/terminated
+                
+                // Menutup Tab (Hanya berfungsi jika dibuka via window.open atau interaksi user tertentu)
+                // Sebagai fallback, kita buat layar blank hitam total
+                setTimeout(() => {
+                    window.close(); // Mencoba menutup tab
+                    document.body.innerHTML = "";
+                    document.body.style.background = "black";
+                }, 2000);
+
+            }, 6000);
+        }
+    </script>
+</body>
+</html>
